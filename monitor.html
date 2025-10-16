@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF27 - Alarmmonitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>FF27 - Alarmmonitor</h1>
+    </header>
+    <main>
+        <section class="clock">
+            <div id="clock">
+                <h1 id="date-time"></h1>
+            </div>
+       </section>
+
+       <section class="fahrzeuge">
+            <h1>Löschzug 27:</h1>
+            <div class="fahrzeugbox">
+                <div class="status Status_LD" id="sechs">
+                    <h1 id="Status_LD"></h1>
+                </div>
+                <div class="name">
+                    <h2>ELW1 (LD27)</h2>
+                    <h3>Florian 27/11-1</h3>
+                </div>
+            </div>
+            <div class="fahrzeugbox">
+                <div class="status" id="zwo">
+                    <h1 id="Status_HLFA"></h1>
+                </div>
+                <div class="name">
+                    <h2>HLF10/11 (HLF A)</h2>
+                    <h3>Florian 27/43-1</h3>
+                </div>
+            </div>
+            <div class="fahrzeugbox">
+                <div class="status" id="zwo">
+                    <h1 id="Status_HLFB"></h1>
+                </div>
+                <div class="name">
+                    <h2>HLF10/6 (HLF B)</h2>
+                    <h3>Florian 27/43-2</h3>
+                </div>
+            </div>
+            <div class="fahrzeugbox">
+                <div class="status" id="sechs">
+                    <h1 id="Status_HLFC"></h1>
+                </div>
+                <div class="name">
+                    <h2>HLF10/11 (HLF C)</h2>
+                    <h3>Florian 27/43-3</h3>
+                </div>
+            </div>
+
+            <h1>Weitere Fahrzeuge:</h1>
+            <div class="fahrzeugbox">
+                <div class="status" id="zwo">
+                    <h1 id="Status_MTW"></h1>
+                </div>
+                <div class="name">
+                    <h2>MTW </h2>
+                    <h3>Florian 27/19-1</h3>
+                </div>
+            </div>
+            <div class="fahrzeugbox">
+                <div class="status" id="zwo">
+                    <h1 id="Status_GTLF"></h1>
+                </div>
+                <div class="name">
+                    <h2>GTLF 3</h2>
+                    <h3>Florian 27/26-1</h3>
+                </div>
+            </div>
+        
+       </section>
+
+       <section class="einsatz">
+        <button onclick="FzgStatus('Status_LD', '1')">1</button>
+       </section>
+
+
+    </main>
+    <footer>
+        <section class="control">
+            <section class="fzgcontrol">
+                <div class="fzgcontrollbox">
+                    <h3>LD27</h3>
+                    <button onclick="FzgStatus('Status_LD', '1')">1</button>
+                    <button onclick="FzgStatus('Status_LD', '2')">2</button>
+                    <button onclick="FzgStatus('Status_LD', '3')">3</button>
+                    <button onclick="FzgStatus('Status_LD', '4')">4</button>
+                    <button onclick="FzgStatus('Status_LD', '5')">5</button>
+                    <button onclick="FzgStatus('Status_LD', '6')">6</button>
+                    <button onclick="FzgStatus('Status_LD', '7')">7</button>
+                    <button onclick="FzgStatus('Status_LD', '8')">8</button>
+                    <button onclick="FzgStatus('Status_LD', '9')">9</button>
+                </div>
+            </section>
+            <section class="fzgcontrol">
+                <div class="fzgcontrollbox">
+                    <h3>HLF A</h3>
+                    <button onclick="FzgStatus('Status_HLFA', '1')">1</button>
+                    <button onclick="FzgStatus('Status_HLFA', '2')">2</button>
+                    <button onclick="FzgStatus('Status_HLFA', '3')">3</button>
+                    <button onclick="FzgStatus('Status_HLFA', '4')">4</button>
+                    <button onclick="FzgStatus('Status_HLFA', '5')">5</button>
+                    <button onclick="FzgStatus('Status_HLFA', '6')">6</button>
+                    <button onclick="FzgStatus('Status_HLFA', '7')">7</button>
+                    <button onclick="FzgStatus('Status_HLFA', '8')">8</button>
+                    <button onclick="FzgStatus('Status_HLFA', '9')">9</button>
+                </div>
+            </section>
+            <section class="fzgcontrol">
+                <div class="fzgcontrollbox">
+                    <h3>HLF B</h3>
+                    <button onclick="FzgStatus('Status_HLFB', '1')">1</button>
+                    <button onclick="FzgStatus('Status_HLFB', '2')">2</button>
+                    <button onclick="FzgStatus('Status_HLFB', '3')">3</button>
+                    <button onclick="FzgStatus('Status_HLFB', '4')">4</button>
+                    <button onclick="FzgStatus('Status_HLFB', '5')">5</button>
+                    <button onclick="FzgStatus('Status_HLFB', '6')">6</button>
+                    <button onclick="FzgStatus('Status_HLFB', '7')">7</button>
+                    <button onclick="FzgStatus('Status_HLFB', '8')">8</button>
+                    <button onclick="FzgStatus('Status_HLFB', '9')">9</button>
+                </div>
+            </section>
+        </section>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+https://feuersoftware.com/einsatzmonitor/
