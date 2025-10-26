@@ -1,0 +1,39 @@
+body {
+    background-image: url('../images/background1.jpg');
+    background-size: cover;
+    background-position: center 25%;
+    overflow: hidden;
+}
+
+.startup{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.selectmodebox{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.selectmodebtn{
+    padding: 24px 24px;
+    border: none;
+    border-radius: 14px;
+    background-color: #a7a7a76a;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.selectmodebtn:hover{
+    background-color: #0056b3;
+    opacity: 1;
+}
