@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <title>Alarmmonitor FF27 - Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="">
+  <link rel="stylesheet" href="src/css/style.css">
+  <link rel="stylesheet" href="src/css/monitor.css">
+  <link rel="stylesheet" href="src/css/fahrzeug.css">
+  <link rel="stylesheet" href="src/css/fontawesome.css">
+  <link rel="stylesheet" href="src/css/solid.css">
+</head>
+
+<body>
+    <div class="view">
+        <div class="parent">
+            <div class="monitor-box" id="logo">
+                <img src="src/images/branding/LOGO.png" alt="Feuerwehr Stuttgart Logo">
+            </div>
+            <div class="monitor-box" id="clock-frame">
+                <div id="clock"></div>
+                <div id="date"></div>
+            </div>
+            <div class="monitor-box" id="timeline">
+                <h2>Dienstplan</h2>
+                <div class="upcoming-events">
+                    <div class="event">
+                        <h1>Dienstbeginn</h1>
+                        <div class="time">
+                            <a>11.07.26 - 07:00</a>
+                            <a>07:10</a>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <h1>Fahrzeugkunde</h1>
+                        <div class="time">
+                            <a>11.07.26 - 07:15</a>
+                            <a>08:15</a>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <h1>Ausbildung</h1>
+                        <div class="time">
+                            <a>11.07.26 - 08:15</a>
+                            <a>09:00</a>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <h1>Dienstsport</h1>
+                        <div class="time">
+                            <a>11.07.26 - 10:00</a>
+                            <a>11:00</a>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <h1>[HLF A] Kochen</h1>
+                        <div class="time">
+                            <a>11.07.26 - 11:30</a>
+                            <a>13:00</a>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <h1>Mittagessen</h1>
+                        <div class="time">
+                            <a>11.07.26 - 13:00</a>
+                            <a>14:00</a>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <h1>Ausbildung</h1>
+                        <div class="time">
+                            <a>11.07.26 - 14:00</a>
+                            <a>15:00</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="monitor-box" id="personal">
+                <div class="personal-box">
+                    <div class="amount">
+                        <a id="nah">9</a>
+                        <a>|</a>
+                        <a id="mittelnah">2</a>
+                        <a>|</a>
+                        <a id="fern">1</a>
+                    </div>
+                    <h2>Maschinisten</h2>
+                </div>
+                <div class="personal-box">
+                    <div class="amount">
+                        <a id="nah">3</a>
+                        <a>|</a>
+                        <a id="mittelnah">1</a>
+                        <a>|</a>
+                        <a id="">0</a>
+                    </div>
+                    <h2>Gruppenführer</h2>
+                </div>
+                <div class="personal-box">
+                    <div class="amount">
+                        <a id="nah">2</a>
+                        <a>|</a>
+                        <a id="mittelnah">1</a>
+                        <a>|</a>
+                        <a id="fern">1</a>
+                    </div>
+                    <h2>Zugführer</h2>
+                </div>
+                <div class="personal-box">
+                    <div class="amount">
+                        <a id="nah">14</a>
+                        <a>|</a>
+                        <a id="mittelnah">9</a>
+                        <a>|</a>
+                        <a id="">0</a>
+                    </div>
+                    <h2>AGTler</h2>
+                </div>
+            </div>
+            <div class="monitor-box" id="fahrzeuge">
+                <h2>Fahrzeuge</h2>
+                <div class="fahrzeuge">
+                    <div class="fahrzeug-box" id="status1">
+                        <div class="status"></div>
+                        <script>
+                            (function(){
+                                const status = document.currentScript.previousElementSibling;
+                                const parent = status && status.closest('.fahrzeug-box');
+                                if(!parent) return;
+                                const m = parent.id && parent.id.match(/\d+/);
+                                status.textContent = m ? m[0] : '';
+                            })();
+                        </script>
+                        <div class="info">
+                            <h1>Florian Stuttgart 27/19-01 (MTW)</h1>
+                            <h3>S-FW 2270 | MTW-41</h3>
+                        </div>
+                        <div class="image">
+                            <img src="src/images/vehicles/mtw.png" alt="MTW" style="width: 90%; padding-left: 5%;">
+                        </div>
+                    </div>
+                    <div class="fahrzeug-box" id="status5">
+                        <div class="status"></div>
+                        <script>
+                            (function(){
+                                const status = document.currentScript.previousElementSibling;
+                                const parent = status && status.closest('.fahrzeug-box');
+                                if(!parent) return;
+                                const m = parent.id && parent.id.match(/\d+/);
+                                status.textContent = m ? m[0] : '';
+                            })();
+                        </script>
+                        <div class="info">
+                            <h1>Florian Stuttgart 27/43-01 (HLF A)</h1>
+                            <h3>S-FW 2162 | HLF 10-11</h3>
+                        </div>
+                        <div class="image">
+                            <img src="src/images/vehicles/hlf.png" alt="HLF" style="width: 90%; padding-left: 5%; padding-top: 5%;">
+                        </div>
+                    </div>
+                    <div class="fahrzeug-box" id="status4">
+                        <div class="status"></div>
+                        <script>
+                            (function(){
+                                const status = document.currentScript.previousElementSibling;
+                                const parent = status && status.closest('.fahrzeug-box');
+                                if(!parent) return;
+                                const m = parent.id && parent.id.match(/\d+/);
+                                status.textContent = m ? m[0] : '';
+                            })();
+                        </script>
+                        <div class="info">
+                            <h1>Florian Stuttgart 27/43-02 (HLF B)</h1>
+                            <h3>S-FW 2667 | HLF 10/6-7</h3>
+                        </div>
+                        <div class="image">
+                            <img src="src/images/vehicles/hlf.png" alt="HLF" style="width: 90%; padding-left: 5%; padding-top: 5%;">
+                        </div>
+                    </div>
+                    <div class="fahrzeug-box" id="status3"> 
+                        <div class="status"></div>
+                        <script>
+                            (function(){
+                                const status = document.currentScript.previousElementSibling;
+                                const parent = status && status.closest('.fahrzeug-box');
+                                if(!parent) return;
+                                const m = parent.id && parent.id.match(/\d+/);
+                                status.textContent = m ? m[0] : '';
+                            })();
+                        </script>
+                        <div class="info">
+                            <h1>Florian Stuttgart 27/43-03 (HLF C)</h1>
+                            <h3>S-XX XXXX | HLF XX</h3>
+                        </div>
+                        <div class="image">
+                            <img src="src/images/vehicles/hlf.png" alt="HLF" style="width: 90%; padding-left: 5%; padding-top: 5%;">
+                        </div>
+                    </div>
+                    <div class="fahrzeug-box" id="status2">
+                        <div class="status"></div>
+                        <script>
+                            (function(){
+                                const status = document.currentScript.previousElementSibling;
+                                const parent = status && status.closest('.fahrzeug-box');
+                                if(!parent) return;
+                                const m = parent.id && parent.id.match(/\d+/);
+                                status.textContent = m ? m[0] : '';
+                            })();
+                        </script>
+                        <div class="info">
+                            <h1>Florian Stuttgart 27/26-01 (GTLF)</h1>
+                            <h3>S-FW 2492 | GTLF-3</h3>
+                        </div>
+                        <div class="image">
+                            <img src="src/images/vehicles/gtlf.png" alt="GTLF" style="width: 90%; padding-left: 5%; padding-top: 3%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="monitor-box" id="einsätze">
+                <h2>Einsätze</h2>
+                <div class="einsätze">
+                    <div class="einsatz">
+                        <div class="einsatzinfo">
+                            <h1>Brand 4 - Weltuntergang JVA</h1>
+                            <h4>Alamierung um 19:43:11</h4>
+                            <h3>Stuttgart-Stammheim, Asperger Straße 60</h3>
+                        </div>
+                        <div class="fahrzeuge">
+                            <div class="fzg">HLF A</div>
+                            <div class="fzg">HLF B</div>
+                        </div>
+                    </div>
+                    <div class="einsatz">
+                        <div class="einsatzinfo">
+                            <h1>Brand 1 - Mülleimer</h1>
+                            <h4>Alamierung um 19:38:34</h4>
+                            <h3>Stuttgart-Zuffenhausen, Unterländerstraße</h3>
+                        </div>
+                        <div class="fahrzeuge">
+                            <div class="fzg">HLF C</div>
+                        </div>
+                    </div>
+                    <div class="einsatz">
+                        <div class="einsatzinfo">
+                            <h1>Durscht 4 - Paulanereinkauf</h1>
+                            <h4>Alamierung um 18:30:00</h4>
+                            <h3>Stuttgart-Stammheim, Stammheimerstr. 140</h3>
+                        </div>
+                        <div class="fahrzeuge">
+                            <div class="fzg">MTW</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="monitor-box" id="weather">
+                <div class="weather-data">
+                    <div class="icon">
+                        <img id="icon" src="" alt="Wettericon">
+                    </div>
+                    <h1 id="temperature"></h1>
+                    <h3 id="location"></h3>
+                </div>
+                <div class="weather-info">
+                    <p>Luftfeuchtigkeit: <span id="humidity"></span></p>
+                    <p>Wind: <span id="wind"></span></p>
+                    <p>Regen: <span id="rain"></span></p>
+                    <p>Bewölkung: <span id="cloud"></span></p>
+                    <p>Sicht: <span id="visibility"></span></p>
+                </div>
+            </div>
+            
+            <div class="monitor-box" id="map">
+                <img src="src/images/einsatzgebiet.png" alt="einsatzgebiet" style="height: 100%;">
+            </div>
+        </div>
+        <div class="status-bar">
+            <div class="timeinfo">
+                <div id="clock-bar"></div>
+                <div id="date-bar"></div>
+            </div>
+            <div class="barstats">
+                <i class="fa-solid fa-note-sticky"></i>
+                <i class="fa-solid fa-server"></i>
+                <i class="fa-solid fa-globe"></i>
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+        </div>
+    </div>
+    <script src="src/js/clock.js"></script>
+    <script src="src/js/weather.js"></script>
+    <script>
+        startTime();
+        startDate();
+        fetchWeather('Stuttgart');
+    </script>
+</body>
+
+</html>
