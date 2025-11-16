@@ -1,0 +1,26 @@
+:root {
+    --bg_color: #424F56;
+    --box_color: #2D3036;
+    --font_color: #ffffff;
+    --font_dim_color: #BDBDBD;
+    --accent_color: #E30F1A;
+    --status_green: #03B300;
+    --status_yellow: #b3b306;
+    --status_red: #E30F1A;
+    --status_grey: #6E6E6E;
+    --status_orange: #cf5300;
+    --status_dark_grey: #1e1e1e;
+}
+
+body {
+    background-color: var(--bg_color);
+    color: var(--font_color);
+    overflow: hidden;
+}
+
+html, body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
