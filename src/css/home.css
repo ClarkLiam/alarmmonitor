@@ -1,0 +1,54 @@
+body {
+    background-image: url("../images/home.jpeg");
+    background-size: cover;
+    background-position: 0.2% 20%;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+}
+
+.home {
+    background-color: #00000037;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    background-color: #80808052;
+    color: var(--font_color);
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 10px;
+    width: 200px;
+    margin: 20px;
+}
+
+.homebtn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    justify-self: center;
+    align-items: center;
+    align-self: center;
+    margin-top: 30px;
+}
+
+.home h1 {
+    color: var(--font_color);
+    font-size: 3rem;
+    margin: 0;
+}
+.home h2 {
+    color: var(--font_dim_color);
+    font-size: 1.6rem;
+    margin: 0;
+}
