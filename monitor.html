@@ -26,55 +26,6 @@
             <div class="monitor-box" id="timeline">
                 <h2>Dienstplan</h2>
                 <div class="upcoming-events">
-                    <div class="event">
-                        <h1>Dienstbeginn</h1>
-                        <div class="time">
-                            <a>11.07.26 - 07:00</a>
-                            <a>07:10</a>
-                        </div>
-                    </div>
-                    <div class="event">
-                        <h1>Fahrzeugkunde</h1>
-                        <div class="time">
-                            <a>11.07.26 - 07:15</a>
-                            <a>08:15</a>
-                        </div>
-                    </div>
-                    <div class="event">
-                        <h1>Ausbildung</h1>
-                        <div class="time">
-                            <a>11.07.26 - 08:15</a>
-                            <a>09:00</a>
-                        </div>
-                    </div>
-                    <div class="event">
-                        <h1>Dienstsport</h1>
-                        <div class="time">
-                            <a>11.07.26 - 10:00</a>
-                            <a>11:00</a>
-                        </div>
-                    </div>
-                    <div class="event">
-                        <h1>[HLF A] Kochen</h1>
-                        <div class="time">
-                            <a>11.07.26 - 11:30</a>
-                            <a>13:00</a>
-                        </div>
-                    </div>
-                    <div class="event">
-                        <h1>Mittagessen</h1>
-                        <div class="time">
-                            <a>11.07.26 - 13:00</a>
-                            <a>14:00</a>
-                        </div>
-                    </div>
-                    <div class="event">
-                        <h1>Ausbildung</h1>
-                        <div class="time">
-                            <a>11.07.26 - 14:00</a>
-                            <a>15:00</a>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="monitor-box" id="personal">
@@ -94,7 +45,7 @@
                         <a>|</a>
                         <a id="mittelnah">1</a>
                         <a>|</a>
-                        <a id="">0</a>
+                        <a id="fern">0</a>
                     </div>
                     <h2>Gruppenführer</h2>
                 </div>
@@ -106,7 +57,7 @@
                         <a>|</a>
                         <a id="fern">1</a>
                     </div>
-                    <h2>Zugführer</h2>
+                    <h2>Jugendwärte</h2>
                 </div>
                 <div class="personal-box">
                     <div class="amount">
@@ -114,9 +65,9 @@
                         <a>|</a>
                         <a id="mittelnah">9</a>
                         <a>|</a>
-                        <a id="">0</a>
+                        <a id="fern">0</a>
                     </div>
-                    <h2>AGTler</h2>
+                    <h2>Jugendliche</h2>
                 </div>
             </div>
             <div class="monitor-box" id="fahrzeuge">
@@ -127,37 +78,6 @@
             <div class="monitor-box" id="einsätze">
                 <h2>Einsätze</h2>
                 <div class="einsätze">
-                    <div class="einsatz">
-                        <div class="einsatzinfo">
-                            <h1>Brand 4 - Weltuntergang JVA</h1>
-                            <h4>Alamierung um 19:43:11</h4>
-                            <h3>Stuttgart-Stammheim, Asperger Straße 60</h3>
-                        </div>
-                        <div class="fahrzeuge">
-                            <div class="fzg">HLF A</div>
-                            <div class="fzg">HLF B</div>
-                        </div>
-                    </div>
-                    <div class="einsatz">
-                        <div class="einsatzinfo">
-                            <h1>Brand 1 - Mülleimer</h1>
-                            <h4>Alamierung um 19:38:34</h4>
-                            <h3>Stuttgart-Zuffenhausen, Unterländerstraße</h3>
-                        </div>
-                        <div class="fahrzeuge">
-                            <div class="fzg">HLF C</div>
-                        </div>
-                    </div>
-                    <div class="einsatz">
-                        <div class="einsatzinfo">
-                            <h1>Durscht 4 - Paulanereinkauf</h1>
-                            <h4>Alamierung um 18:30:00</h4>
-                            <h3>Stuttgart-Stammheim, Stammheimerstr. 140</h3>
-                        </div>
-                        <div class="fahrzeuge">
-                            <div class="fzg">MTW</div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="monitor-box" id="weather">
@@ -197,6 +117,9 @@
     <script src="src/js/clock.js"></script>
     <script src="src/js/weather.js"></script>
     <script src="src/js/vehicles.js"></script>
+    <script src="src/js/dienstplan.js"></script>
+    <script src="src/js/einsätze.js"></script>
+    <script src="src/js/personal.js"></script>
     <script>
         startTime();
         startDate();
