@@ -275,3 +275,22 @@ a#fern {
     font-weight: bold;
 }
 
+#data-table {
+    grid-area: 3 / 3 / 4 / 4;
+    overflow-y: auto;
+}
+
+#data-table h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#vehicle-data-table {
+    font-size: 0.9rem;
+}
+
+#vehicle-data-table th,
+#vehicle-data-table td {
+    padding: 6px;
+    text-align: left;
+}

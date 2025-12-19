@@ -122,101 +122,6 @@
             <div class="monitor-box" id="fahrzeuge">
                 <h2>Fahrzeuge</h2>
                 <div class="fahrzeuge">
-                    <div class="fahrzeug-box" id="status1">
-                        <div class="status"></div>
-                        <script>
-                            (function(){
-                                const status = document.currentScript.previousElementSibling;
-                                const parent = status && status.closest('.fahrzeug-box');
-                                if(!parent) return;
-                                const m = parent.id && parent.id.match(/\d+/);
-                                status.textContent = m ? m[0] : '';
-                            })();
-                        </script>
-                        <div class="info">
-                            <h1>Florian Stuttgart 27/19-01 (MTW)</h1>
-                            <h3>S-FW 2270 | MTW-41</h3>
-                        </div>
-                        <div class="image">
-                            <img src="src/images/vehicles/mtw.png" alt="MTW" style="width: 90%; padding-left: 5%;">
-                        </div>
-                    </div>
-                    <div class="fahrzeug-box" id="status5">
-                        <div class="status"></div>
-                        <script>
-                            (function(){
-                                const status = document.currentScript.previousElementSibling;
-                                const parent = status && status.closest('.fahrzeug-box');
-                                if(!parent) return;
-                                const m = parent.id && parent.id.match(/\d+/);
-                                status.textContent = m ? m[0] : '';
-                            })();
-                        </script>
-                        <div class="info">
-                            <h1>Florian Stuttgart 27/43-01 (HLF A)</h1>
-                            <h3>S-FW 2162 | HLF 10-11</h3>
-                        </div>
-                        <div class="image">
-                            <img src="src/images/vehicles/hlf.png" alt="HLF" style="width: 90%; padding-left: 5%; padding-top: 5%;">
-                        </div>
-                    </div>
-                    <div class="fahrzeug-box" id="status4">
-                        <div class="status"></div>
-                        <script>
-                            (function(){
-                                const status = document.currentScript.previousElementSibling;
-                                const parent = status && status.closest('.fahrzeug-box');
-                                if(!parent) return;
-                                const m = parent.id && parent.id.match(/\d+/);
-                                status.textContent = m ? m[0] : '';
-                            })();
-                        </script>
-                        <div class="info">
-                            <h1>Florian Stuttgart 27/43-02 (HLF B)</h1>
-                            <h3>S-FW 2667 | HLF 10/6-7</h3>
-                        </div>
-                        <div class="image">
-                            <img src="src/images/vehicles/hlf.png" alt="HLF" style="width: 90%; padding-left: 5%; padding-top: 5%;">
-                        </div>
-                    </div>
-                    <div class="fahrzeug-box" id="status3"> 
-                        <div class="status"></div>
-                        <script>
-                            (function(){
-                                const status = document.currentScript.previousElementSibling;
-                                const parent = status && status.closest('.fahrzeug-box');
-                                if(!parent) return;
-                                const m = parent.id && parent.id.match(/\d+/);
-                                status.textContent = m ? m[0] : '';
-                            })();
-                        </script>
-                        <div class="info">
-                            <h1>Florian Stuttgart 27/43-03 (HLF C)</h1>
-                            <h3>S-XX XXXX | HLF XX</h3>
-                        </div>
-                        <div class="image">
-                            <img src="src/images/vehicles/hlf.png" alt="HLF" style="width: 90%; padding-left: 5%; padding-top: 5%;">
-                        </div>
-                    </div>
-                    <div class="fahrzeug-box" id="status2">
-                        <div class="status"></div>
-                        <script>
-                            (function(){
-                                const status = document.currentScript.previousElementSibling;
-                                const parent = status && status.closest('.fahrzeug-box');
-                                if(!parent) return;
-                                const m = parent.id && parent.id.match(/\d+/);
-                                status.textContent = m ? m[0] : '';
-                            })();
-                        </script>
-                        <div class="info">
-                            <h1>Florian Stuttgart 27/26-01 (GTLF)</h1>
-                            <h3>S-FW 2492 | GTLF-3</h3>
-                        </div>
-                        <div class="image">
-                            <img src="src/images/vehicles/gtlf.png" alt="GTLF" style="width: 90%; padding-left: 5%; padding-top: 3%;">
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="monitor-box" id="einsätze">
@@ -291,6 +196,7 @@
     </div>
     <script src="src/js/clock.js"></script>
     <script src="src/js/weather.js"></script>
+    <script src="src/js/vehicles.js"></script>
     <script>
         startTime();
         startDate();
