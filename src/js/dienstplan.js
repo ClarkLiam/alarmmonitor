@@ -1,5 +1,5 @@
 /**
- * Fetch dienstplan (events) data from Google Sheets tagesplan sheet
+ * Fetch Dienstplan data from Google Sheets (-> Tagesplan)
  */
 
 const TAGESPLAN_CSV_URL = 'https://docs.google.com/spreadsheets/d/1avBbHGh6RDgBvAvMULAhJq-I5fpow_X7fzIEkzL6L4E/export?format=csv&gid=1859359721';
@@ -15,7 +15,6 @@ function parseEventCSV(csvText) {
         return [];
     }
     
-    // Parse header row to find column indices
     const headerLine = lines[0];
     const headerCells = [];
     let current = '';
@@ -37,8 +36,6 @@ function parseEventCSV(csvText) {
     console.log('Headers:', headerCells);
     console.log('Total columns:', headerCells.length);
     
-    // For debugging: assume columns are in order 0, 1, 2, 3, 4
-    // Based on user feedback: Title, Date, StartTime, EndTime, Participants
     const titleIdx = 0;
     const dateIdx = 2;
     const startIdx = 3;
@@ -47,7 +44,6 @@ function parseEventCSV(csvText) {
     
     console.log('Using column indices - Title:', titleIdx, 'Date:', dateIdx, 'Start:', startIdx, 'End:', endIdx, 'Participants:', participantsIdx);
     
-    // Parse event rows
     const events = [];
     for (let row = 1; row < lines.length; row++) {
         const cells = [];
@@ -75,7 +71,6 @@ function parseEventCSV(csvText) {
         
         console.log(`Row ${row}: title="${title}", date="${date}", start="${startTime}", end="${endTime}", participants="${participants}"`);
         
-        // Skip empty rows
         if (!title && !startTime && !endTime) continue;
         
         events.push({ title, date, startTime, endTime, participants });
@@ -87,7 +82,7 @@ function parseEventCSV(csvText) {
 
 async function fetchDienstplanData() {
     try {
-        console.log('Fetching dienstplan data from Google Sheets');
+        console.log('Fetching Dienstplan from Google Sheets');
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -105,7 +100,7 @@ async function fetchDienstplanData() {
         console.log('Events returned:', result);
         return result;
     } catch (error) {
-        console.error('Error fetching dienstplan data:', error);
+        console.error('Error fetching Dienstplan:', error);
         console.error('Error type:', error.name);
         console.error('Error message:', error.message);
         return [];
@@ -113,26 +108,24 @@ async function fetchDienstplanData() {
 }
 
 function isEventPassed(event) {
-    // Parse date (format: "DD.MM.YY")
-    const [eventDay, eventMonth, eventYear] = event.date.split('.').map(Number);
-    // Adjust year (YY format: assume 20YY)
-    const eventYearFull = 2000 + eventYear;
+    const [eventDay, eventMonth, eventYear] = event.date.split('.').map(Number);    // Parse date (format: "DD.MM.YY")
+    const eventYearFull = 2000 + eventYear;     // Adjust year (YY format: assume 20YY)
     const eventDate = new Date(eventYearFull, eventMonth - 1, eventDay);
     
     const now = new Date();
     const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    // If event is on a past day, hide it
+    // hide elements that are older then today
     if (eventDate < todayDate) {
         return true;
     }
     
-    // If event is on a future day, don't hide it
+    // dont hide future events after today
     if (eventDate > todayDate) {
         return false;
     }
     
-    // Event is today - check if end time has passed
+    // event today -> check timeing
     const [endHours, endMinutes] = event.endTime.split(':').map(Number);
     const currentHours = now.getHours();
     const currentMinutes = now.getMinutes();
@@ -165,8 +158,7 @@ function isEventCurrent(event) {
     return nowMinutes >= startMinutesTotal && nowMinutes < endMinutesTotal;
 }
 
-function eventStartDateObj(event) {
-    // Build a Date from event.date (DD.MM.YY) and event.startTime (HH:MM)
+function eventStartDateObj(event) {     // build date from date & time functions
     if (!event || !event.date || !event.startTime) return new Date(0);
     const [d, m, y] = event.date.split('.').map(Number);
     const yearFull = 2000 + (isNaN(y) ? 0 : y);
@@ -175,12 +167,11 @@ function eventStartDateObj(event) {
 }
 
 function sortEventsByDateTime(events) {
-    // Returns a new array sorted by date then start time
     return [...events].sort((a, b) => {
         const da = eventStartDateObj(a).getTime();
         const db = eventStartDateObj(b).getTime();
         if (da !== db) return da - db;
-        // Tie-breaker: end time if available
+
         const [aeH, aeM] = (a.endTime || '00:00').split(':').map(Number);
         const [beH, beM] = (b.endTime || '00:00').split(':').map(Number);
         const ae = (aeH || 0) * 60 + (aeM || 0);
@@ -189,33 +180,27 @@ function sortEventsByDateTime(events) {
     });
 }
 
-function filterAndLimitEvents(events, maxEvents = 8) {
-    // Filter out passed events
+function filterAndLimitEvents(events, maxEvents = 8) {      // limit to 8 events + check if relevant
     const upcomingEvents = events.filter(event => !isEventPassed(event));
-    
-    // Limit to maxEvents
+
     return upcomingEvents.slice(0, maxEvents);
 }
 
 function renderEvents(events) {
     console.log('Rendering events...');
     
-    // Sort, then filter and limit events
     const sorted = sortEventsByDateTime(events);
     const eventsToShow = filterAndLimitEvents(sorted, 8);
     console.log(`Showing ${eventsToShow.length} of ${events.length} events`);
     
-    // Find the upcoming-events container
     const container = document.querySelector('.upcoming-events');
     if (!container) {
         console.warn('No .upcoming-events container found');
         return;
     }
     
-    // Clear existing events
     container.innerHTML = '';
     
-    // Create an event div for each event
     eventsToShow.forEach((event, index) => {
         const eventDiv = document.createElement('div');
         eventDiv.className = 'event';
@@ -226,27 +211,22 @@ function renderEvents(events) {
         eventDiv.style.marginBottom = '6px';
         eventDiv.style.paddingBottom = '6px';
 
-        // Store data attributes for live highlighting
         eventDiv.dataset.date = event.date;
         eventDiv.dataset.start = event.startTime;
         eventDiv.dataset.end = event.endTime;
 
-        // Apply current class if happening now
         if (isEventCurrent(event)) {
             eventDiv.classList.add('current');
         }
         
-        // Left section (title and participants)
         const leftDiv = document.createElement('div');
         leftDiv.style.flex = '1';
         
-        // Event title
         const h1 = document.createElement('h1');
         h1.textContent = event.title;
         h1.style.margin = '0 0 4px 0';
         leftDiv.appendChild(h1);
         
-        // Participants text
         if (event.participants) {
             const participantsText = document.createElement('p');
             participantsText.style.fontSize = '0.85em';
@@ -260,19 +240,16 @@ function renderEvents(events) {
         
         eventDiv.appendChild(leftDiv);
         
-        // Right section (date - time)
         const timeDiv = document.createElement('div');
         timeDiv.className = 'time';
         timeDiv.style.textAlign = 'right';
         
-        // Top line: Date - Start time
         const dateTimeSpan = document.createElement('a');
         dateTimeSpan.textContent = `${event.date} - ${event.startTime}`;
         dateTimeSpan.style.display = 'block';
         dateTimeSpan.style.marginBottom = '2px';
         timeDiv.appendChild(dateTimeSpan);
         
-        // End time
         const endSpan = document.createElement('a');
         endSpan.textContent = event.endTime;
         endSpan.style.display = 'block';
@@ -315,7 +292,6 @@ async function updateDienstplanIfChanged() {
     try {
         const newEvents = await fetchDienstplanData();
         
-        // Simple change detection: compare JSON strings
         if (JSON.stringify(newEvents) !== JSON.stringify(currentEvents)) {
             console.log('Dienstplan data changed, updating UI...');
             currentEvents = newEvents;
@@ -334,18 +310,15 @@ async function initializeDienstplan() {
 
     try {
         renderEvents(events);
-        // Initial marking of current events
         markCurrentEventsInDOM();
         document.dispatchEvent(new CustomEvent('dienstplanLoaded', { detail: events }));
     } catch (e) {
         console.error('Error rendering dienstplan:', e);
     }
     
-    // Start polling for changes
     console.log('Starting dienstplan auto-refresh interval every', DIENSTPLAN_REFRESH_INTERVAL / 1000, 'seconds');
     setInterval(updateDienstplanIfChanged, DIENSTPLAN_REFRESH_INTERVAL);
-    // Refresh current-event markers every 30s
-    setInterval(markCurrentEventsInDOM, 30000);
+    setInterval(markCurrentEventsInDOM, 60000);
 
     return events;
 }
