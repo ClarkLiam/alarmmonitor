@@ -3,7 +3,7 @@
  */
 
 const PERSONAL_CSV_URL = "https://docs.google.com/spreadsheets/d/1avBbHGh6RDgBvAvMULAhJq-I5fpow_X7fzIEkzL6L4E/export?format=csv&gid=1073488461";
-const PERSONAL_UPDATE_INTERVAL = 60000; // 60 seconds
+const PERSONAL_UPDATE_INTERVAL = 120000; // 120 seconds
 let currentPersonal = [];
 
 function parsePersonalCSV(csvText) {
