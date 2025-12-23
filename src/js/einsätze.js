@@ -3,7 +3,7 @@
  */
 
 const EINSÄTZE_CSV_URL = "https://docs.google.com/spreadsheets/d/1avBbHGh6RDgBvAvMULAhJq-I5fpow_X7fzIEkzL6L4E/export?format=csv&gid=2011332130";
-const EINSÄTZE_UPDATE_INTERVAL = 20000; // 20 seconds
+const EINSÄTZE_UPDATE_INTERVAL = 15000; // 15 seconds
 let currentEinsätze = [];
 
 function parseEinsätzeCSV(csvText) {
