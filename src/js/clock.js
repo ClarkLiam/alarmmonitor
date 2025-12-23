@@ -1,4 +1,4 @@
-function startTime() {
+function startTime() {      // get Time 
     const today = new Date();
     let h = today.getHours();
     let m = today.getMinutes();
@@ -10,19 +10,19 @@ function startTime() {
     setTimeout(startTime, 1000);
 }
 
-function checkTime(i) {
+function checkTime(i) {     // formating
     if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
     return i;
 }
 
-function getDate() {
+function getDate() {        // retrieve date & day
     const today = new Date();
     const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     let day = weekday[today.getDay()];
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return day + ", " + today.toLocaleDateString(undefined, options);
 }
-function getDateBar() {
+function getDateBar() {     // date information for status bar
     const today = new Date();
     const options = { day: 'numeric', month: 'numeric', year: 'numeric' };
     const dd = String(today.getDate()).padStart(2, '0');
