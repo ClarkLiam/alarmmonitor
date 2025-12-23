@@ -1,5 +1,5 @@
 /**
- * Fetch einsätze (emergency calls) data from Google Sheets
+ * Fetch Einsätze from Google Sheets
  */
 
 const EINSÄTZE_CSV_URL = "https://docs.google.com/spreadsheets/d/1avBbHGh6RDgBvAvMULAhJq-I5fpow_X7fzIEkzL6L4E/export?format=csv&gid=2011332130";
@@ -15,7 +15,6 @@ function parseEinsätzeCSV(csvText) {
         return [];
     }
     
-    // Parse header row
     const headerLine = lines[0];
     const headerCells = [];
     let current = '';
@@ -47,7 +46,6 @@ function parseEinsätzeCSV(csvText) {
     
     console.log('Using column indices - Type:', typeIdx, 'Description:', descIdx, 'StartTime:', startTimeIdx, 'Time:', timeIdx, 'Location:', locIdx, 'Vehicles:', vehiclesIdx, 'Status:', statusIdx);
     
-    // Parse rows
     const einsätze = [];
     for (let row = 1; row < lines.length; row++) {
         const cells = [];
@@ -67,7 +65,6 @@ function parseEinsätzeCSV(csvText) {
         }
         cells.push(current.trim());
         
-        // Log all cells in this row for debugging
         console.log(`Row ${row} all cells:`, cells);
         
         const type = cells[typeIdx] || '';
@@ -90,7 +87,7 @@ function parseEinsätzeCSV(csvText) {
 
 async function fetchEinsätzeData() {
     try {
-        console.log('Fetching einsätze data from Google Sheets');
+        console.log('Fetching Einsatz data from Google Sheets');
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -108,7 +105,7 @@ async function fetchEinsätzeData() {
         console.log('Einsätze returned:', result);
         return result;
     } catch (error) {
-        console.error('Error fetching einsätze data:', error);
+        console.error('Error fetching Einsatz data:', error);
         console.error('Error type:', error.name);
         console.error('Error message:', error.message);
         return [];
@@ -118,18 +115,11 @@ async function fetchEinsätzeData() {
 function shouldShowEinsatz(einsatz) {
     const status = (einsatz.status || '').toLowerCase();
     
-    // Demo: always show
-    if (status === 'demo') return true;
-    
-    // Completed: always show
-    if (status === 'completed') return true;
-    
-    // Active: always show
-    if (status === 'active') return true;
-    
-    // Armed: only show if current time >= start time
-    if (status === 'armed') {
-        const now = new Date();
+    if (status === 'demo') return true;             // Demo: show
+    if (status === 'completed') return true;        // Completed: show
+    if (status === 'active') return true;           // Active: show
+    if (status === 'armed') {                       // Armed: only show if current time >= start time
+        const now = new Date(); 
         const [hh, mm] = (einsatz.startTime || '00:00').split(':').map(Number);
         if (isNaN(hh) || isNaN(mm)) return false;
         
@@ -142,10 +132,7 @@ function shouldShowEinsatz(einsatz) {
     return false;
 }
 
-function sortEinsätzeByStatusAndTime(einsätze) {
-    // Priority order: demo > active > completed
-    // Within each status, sort by time (most recent first)
-    
+function sortEinsätzeByStatusAndTime(einsätze) {        // Priority order: demo > active > completed
     const statusOrder = {
         'demo': 0,
         'active': 1,
@@ -159,13 +146,12 @@ function sortEinsätzeByStatusAndTime(einsätze) {
         const orderA = statusOrder[statusA] !== undefined ? statusOrder[statusA] : 3;
         const orderB = statusOrder[statusB] !== undefined ? statusOrder[statusB] : 3;
         
-        // First sort by status priority
+        // sort by status priority
         if (orderA !== orderB) {
             return orderA - orderB;
         }
         
-        // Within same status, sort by time (most recent first)
-        // Parse time in HH:MM format
+        // Within, sort by time
         const timeA = a.time ? a.time.split(':').map(Number) : [0, 0];
         const timeB = b.time ? b.time.split(':').map(Number) : [0, 0];
         const minutesA = timeA[0] * 60 + timeA[1];
@@ -178,30 +164,30 @@ function sortEinsätzeByStatusAndTime(einsätze) {
 function renderEinsätze(einsätze) {
     console.log('Rendering einsätze...');
     
-    // Find the einsätze container
+    // Find container
     const container = document.querySelector('.einsätze');
     if (!container) {
         console.warn('No .einsätze container found');
         return;
     }
     
-    // Filter by status (show only those that should be visible)
+    // Filter by status
     const visibleEinsätze = einsätze.filter(shouldShowEinsatz);
     console.log(`Showing ${visibleEinsätze.length} of ${einsätze.length} einsätze`);
     
-    // Sort by status priority (demo > active > completed) and by time (most recent first)
+    // Sort by 'priority' (demo > active > completed) + time
     const sortedEinsätze = sortEinsätzeByStatusAndTime(visibleEinsätze);
     
-    // Clear existing einsätze
+    // Clear existing
     container.innerHTML = '';
     
-    // Create an einsatz div for each emergency call (limit to 3)
-    const displayEinsätze = sortedEinsätze.slice(0, 3);
+    // Create div for Einsatz -> limit to 4
+    const displayEinsätze = sortedEinsätze.slice(0, 4);
     displayEinsätze.forEach((einsatz, index) => {
         const einsatzDiv = document.createElement('div');
         einsatzDiv.className = 'einsatz';
         
-        // Apply lighter background and reduced height if completed
+        // Modify Style for completed
         if ((einsatz.status || '').toLowerCase() === 'completed') {
             einsatzDiv.style.opacity = '0.85';
             einsatzDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
@@ -211,11 +197,11 @@ function renderEinsätze(einsätze) {
             einsatzDiv.style.paddingTop = '15px';   
         }
         
-        // Info section
+        // Information
         const infoDiv = document.createElement('div');
         infoDiv.className = 'einsatzinfo';
         
-        // Type and description title
+        // Type and description
         const h1 = document.createElement('h1');
         h1.textContent = `${einsatz.type} - ${einsatz.description}`;
         infoDiv.appendChild(h1);
@@ -234,13 +220,12 @@ function renderEinsätze(einsätze) {
         
         einsatzDiv.appendChild(infoDiv);
         
-        // Fahrzeuge section (vehicles) - always show
+        // Fahrzeug section
         const vehiclesDiv = document.createElement('div');
         vehiclesDiv.className = 'fahrzeuge';
         
         if (einsatz.vehicles) {
-            // Split vehicles by comma if multiple
-            const vehicleList = einsatz.vehicles.split(',').map(v => v.trim());
+            const vehicleList = einsatz.vehicles.split(',').map(v => v.trim());     // Split vehicles by comma
             vehicleList.forEach(vehicle => {
                 const vehicleSpan = document.createElement('div');
                 vehicleSpan.className = 'fzg';
@@ -259,8 +244,7 @@ function renderEinsätze(einsätze) {
 async function updateEinsätzeIfChanged() {
     try {
         const newEinsätze = await fetchEinsätzeData();
-        
-        // Simple change detection: compare JSON strings
+
         if (JSON.stringify(newEinsätze) !== JSON.stringify(currentEinsätze)) {
             console.log('Einsätze data changed, updating UI...');
             currentEinsätze = newEinsätze;
@@ -284,8 +268,7 @@ async function initializeEinsätze() {
         console.error('Error rendering einsätze:', e);
     }
     
-    // Start polling for changes
-    console.log('Starting einsätze auto-refresh interval every', EINSÄTZE_UPDATE_INTERVAL / 1000, 'seconds');
+    console.log('Starting auto-refresh interval for .einsätze every', EINSÄTZE_UPDATE_INTERVAL / 1000, 'seconds');
     setInterval(updateEinsätzeIfChanged, EINSÄTZE_UPDATE_INTERVAL);
 
     return einsätze;
