@@ -1,5 +1,5 @@
 /**
- * Fetch personal (personnel) data from Google Sheets
+ * Fetch personal data from Google Sheets
  */
 
 const PERSONAL_CSV_URL = "https://docs.google.com/spreadsheets/d/1avBbHGh6RDgBvAvMULAhJq-I5fpow_X7fzIEkzL6L4E/export?format=csv&gid=1073488461";
@@ -15,7 +15,6 @@ function parsePersonalCSV(csvText) {
         return [];
     }
     
-    // Parse header row
     const headerLine = lines[0];
     const headerCells = [];
     let current = '';
@@ -37,16 +36,13 @@ function parsePersonalCSV(csvText) {
     console.log('Headers:', headerCells);
     console.log('Total columns:', headerCells.length);
     
-    // Column B=Maschinisten, C=Gruppenführer, D=Jugendwärte, E=Jugendliche
-    // Row 2=close/nah, Row 3=semi/mittelnah, Row 4=fern
-    const maschinenIdx = 1;      // Column B
-    const gruppenIdx = 2;        // Column C
-    const jugendwärteIdx = 3;    // Column D
-    const jugendlicheIdx = 4;    // Column E
+    const maschinenIdx = 1;      
+    const gruppenIdx = 2;        
+    const jugendwärteIdx = 3;    
+    const jugendlicheIdx = 4;    
     
     console.log('Using column indices - Maschinisten:', maschinenIdx, 'Gruppenführer:', gruppenIdx, 'Jugendwärte:', jugendwärteIdx, 'Jugendliche:', jugendlicheIdx);
     
-    // Parse all rows and store them
     const allRows = [];
     for (let row = 1; row < lines.length; row++) {
         const cells = [];
@@ -66,21 +62,17 @@ function parsePersonalCSV(csvText) {
         }
         cells.push(current.trim());
         
-        // Log all cells in this row for debugging
+        // Log all cells for debugging
         console.log(`Row ${row} all cells:`, cells);
         allRows.push(cells);
     }
     
-    // Build personal data from rows
-    // Row 2 (index 0 in allRows) = close/nah
-    // Row 3 (index 1 in allRows) = semi/mittelnah
-    // Row 4 (index 2 in allRows) = fern
     const personal = [];
     
     if (allRows.length >= 3) {
-        const nahRow = allRows[0];      // Row 2
-        const mittelnahRow = allRows[1]; // Row 3
-        const fernRow = allRows[2];      // Row 4
+        const nahRow = allRows[0];      
+        const mittelnahRow = allRows[1];
+        const fernRow = allRows[2];     
         
         // Maschinisten
         personal.push({
