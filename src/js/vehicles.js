@@ -16,7 +16,6 @@ function parseCSV(csvText) {
         return [];
     }
     
-    // Parse each line as CSV (handle quoted values)
     const rows = lines.map(line => {
         const cells = [];
         let current = '';
@@ -42,8 +41,6 @@ function parseCSV(csvText) {
     console.log('Second row (call signs):', rows[1]);
     console.log('Third row (status):', rows[2]);
     
-    // Row 1: designations, Row 2: call signs, Row 3: status, Row 4: kennzeichen, Row 5: typ
-    // Column 1 (index 0) is a label; columns 2+ contain vehicle data
     const vehicles = [];
     
     for (let colIndex = 1; colIndex < rows[0].length; colIndex++) {
