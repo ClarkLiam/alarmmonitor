@@ -279,3 +279,4 @@ if (document.readyState === 'loading') {
 } else {
     setTimeout(initializeEinsätze, 100);
 }
+
