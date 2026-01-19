@@ -264,11 +264,7 @@ async function updateEinsatzMarkers(einsaetze) {
     const displayed = pickDisplayedEinsätze(einsaetze);
     const currentAddresses = displayed.map(e => (e.location || '').trim());
     
-    // Skip update if addresses haven't changed
-    if (JSON.stringify(currentAddresses) === JSON.stringify(lastDisplayedAddresses)) {
-        console.log('Marker addresses unchanged, skipping update');
-        return;
-    }
+    if (JSON.stringify(currentAddresses) === JSON.stringify(lastDisplayedAddresses)) return;
     lastDisplayedAddresses = currentAddresses;
 
     const results = await Promise.all(displayed.map(async einsatz => {
@@ -282,9 +278,6 @@ async function updateEinsatzMarkers(einsaetze) {
             : rawCoords;
 
         if (!coords) return { einsatz, coords: null };
-
-        // Log for debugging any drift
-        console.log('Geocode resolved', einsatz.location, '->', coords);
 
         return { einsatz, coords };
     }));
@@ -336,7 +329,6 @@ document.addEventListener('einsätzeLoaded', (event) => {
         geocodeAddress(FIREHOUSE_ADDRESS).then(coords => {
             firehouseCoords = coords || FIREHOUSE_FALLBACK_COORDS;
             if (firehouseCoords) {
-                console.log('Firehouse geocoded:', firehouseCoords);
                 firehouseCircle.setLatLng([firehouseCoords.lat, firehouseCoords.lon]);
             }
         });
@@ -381,12 +373,9 @@ const ResetMapControl = L.Control.extend({
             autoZoomEnabled = !autoZoomEnabled;
             if (!autoZoomEnabled) {
                 map.setView([48.846141, 9.157327], 13);
-                console.log('Auto-zoom disabled, map reset to full view');
                 button.style.opacity = '0.7';
             } else {
-                console.log('Auto-zoom enabled, re-fitting bounds');
                 button.style.opacity = '1';
-                // Re-fit bounds around existing markers
                 if (einsatzMarkers.length > 0 || firehouseCoords) {
                     const boundsArray = einsatzMarkers.map(m => m.getLatLng()).map(latlng => [latlng.lat, latlng.lng]);
                     const firehouseForBounds = firehouseCoords || FIREHOUSE_FALLBACK_COORDS;
