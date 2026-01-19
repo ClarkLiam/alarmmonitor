@@ -1,6 +1,7 @@
-var map = L.map('map', {zoomControl: false}).setView([48.846141, 9.157327], 13);
+var map = L.map('map', {zoomControl: false, dragging: false, attributionControl: false}).setView([48.846141, 9.157327], 13);
 
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png', {
+    attribution: ''
 }).addTo(map);
 
 var polygon = L.polygon([
@@ -66,4 +67,251 @@ var polygon = L.polygon([
     [48.861910, 9.141266]
 ]).addTo(map);
 
-//markers for events
+// --- Einsatz marker handling ---
+const einsatzMarkerIcons = {
+    active: L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [16, 26],
+        iconAnchor: [8, 26],
+        shadowSize: [24, 24]
+    }),
+    completed: L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [16, 26],
+        iconAnchor: [8, 26],
+        shadowSize: [24, 24]
+    })
+};
+
+function getEinsatzMarkerIcon(status) {
+    const normalized = (status || '').toLowerCase();
+    if (normalized === 'completed') return einsatzMarkerIcons.completed;
+    return einsatzMarkerIcons.active;
+}
+
+const einsatzMarkers = [];
+const markerClusterGroup = L.markerClusterGroup({
+    disableClusteringAtZoom: 0
+});
+map.addLayer(markerClusterGroup);
+const geocodeCache = new Map();
+let lastDisplayedAddresses = [];
+let updateDebounceTimer = null;
+const FIREHOUSE_ADDRESS = 'Stammheimerstraße 140, Ulm';
+let firehouseCoords = null;
+let autoZoomEnabled = true;
+
+function getTooltipDirection(markerLatlng) {
+    // Get available directions to position tooltip (top, left, right)
+    const directions = ['top', 'left', 'right'];
+    
+    // Simple rotation: spread tooltips in different directions
+    // For now, use a hash-based approach to distribute evenly
+    const hash = (markerLatlng.lat + markerLatlng.lng).toString().charCodeAt(0);
+    return directions[hash % directions.length];
+}
+
+function getTooltipOffset(direction) {
+    // Adjust offset based on direction
+    switch(direction) {
+        case 'top': return [0, -45];
+        case 'left': return [-10, -12];
+        case 'right': return [10, -12];
+        default: return [0, -45];
+    }
+}
+
+function clearEinsatzMarkers() {
+    einsatzMarkers.forEach(marker => markerClusterGroup.removeLayer(marker));
+    einsatzMarkers.length = 0;
+}
+
+async function geocodeAddress(address, timeout = 8000) {
+    const trimmed = (address || '').trim();
+    if (!trimmed) return null;
+    if (geocodeCache.has(trimmed)) return geocodeCache.get(trimmed);
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(trimmed)}&countrycodes=de&addressdetails=0`;
+        const response = await fetch(url, { 
+            signal: controller.signal,
+            headers: { 'Accept': 'application/json' } 
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) throw new Error(`Geocoding failed with status ${response.status}`);
+
+        const results = await response.json();
+        if (!Array.isArray(results) || results.length === 0) {
+            console.warn('No geocode results for address:', trimmed);
+            geocodeCache.set(trimmed, null);
+            return null;
+        }
+
+        const { lat, lon } = results[0];
+        const coords = { lat: Number(lat), lon: Number(lon) };
+        geocodeCache.set(trimmed, coords);
+        return coords;
+    } catch (err) {
+        console.error('Error geocoding address:', trimmed, err);
+        geocodeCache.set(trimmed, null);
+        return null;
+    }
+}
+
+function pickDisplayedEinsätze(einsaetze) {
+    const eligible = Array.isArray(einsaetze) ? einsaetze : [];
+
+    if (typeof shouldShowEinsatz === 'function') {
+        // Mirror UI visibility rules
+        const filtered = eligible.filter(shouldShowEinsatz);
+        const sorted = typeof sortEinsätzeByStatusAndTime === 'function'
+            ? sortEinsätzeByStatusAndTime([...filtered])
+            : filtered;
+        return sorted.slice(0, 4);
+    }
+
+    // Fallback: show the first 4 entries
+    return eligible.slice(0, 4);
+}
+
+async function updateEinsatzMarkers(einsaetze) {
+    clearEinsatzMarkers();
+
+    const displayed = pickDisplayedEinsätze(einsaetze);
+    const currentAddresses = displayed.map(e => (e.location || '').trim());
+    
+    // Skip update if addresses haven't changed
+    if (JSON.stringify(currentAddresses) === JSON.stringify(lastDisplayedAddresses)) {
+        console.log('Marker addresses unchanged, skipping update');
+        return;
+    }
+    lastDisplayedAddresses = currentAddresses;
+
+    const results = await Promise.all(displayed.map(async einsatz => {
+        const coords = await geocodeAddress(einsatz.location);
+        return { einsatz, coords };
+    }));
+
+    results.forEach(({ einsatz, coords }) => {
+        if (!coords) return;
+
+        const marker = L.marker([coords.lat, coords.lon], { icon: getEinsatzMarkerIcon(einsatz.status) });
+        const label = einsatz.type || 'Einsatz';
+        const direction = getTooltipDirection(L.latLng(coords.lat, coords.lon));
+        const offset = getTooltipOffset(direction);
+        marker.bindTooltip(label, { permanent: true, direction: direction, offset: offset, className: 'einsatz-marker-label' });
+        marker.bindPopup(`<strong>${einsatz.type || 'Einsatz'}</strong><br>${einsatz.description || ''}<br>${einsatz.location || ''}`, { maxWidth: 200, maxHeight: 150 });
+        markerClusterGroup.addLayer(marker);
+        einsatzMarkers.push(marker);
+    });
+
+    // Zoom to fit all displayed markers + firehouse, or reset to default if none
+    if (!autoZoomEnabled) return;
+    
+    const allMarkersWithCoords = results.filter(({ coords }) => coords);
+    
+    if (allMarkersWithCoords.length > 0 || firehouseCoords) {
+        const boundsArray = allMarkersWithCoords.map(({ coords }) => [coords.lat, coords.lon]);
+        if (firehouseCoords) {
+            boundsArray.push([firehouseCoords.lat, firehouseCoords.lon]);
+        }
+        const bounds = L.latLngBounds(boundsArray);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+    } else {
+        // No alarms with coordinates: reset to default view
+        map.setView([48.846141, 9.157327], 13);
+    }
+}
+
+function debouncedUpdateMarkers(einsaetze) {
+    clearTimeout(updateDebounceTimer);
+    updateDebounceTimer = setTimeout(() => {
+        updateEinsatzMarkers(einsaetze);
+    }, 300);
+}
+
+document.addEventListener('einsätzeLoaded', (event) => {
+    // Geocode firehouse on first load
+    if (!firehouseCoords) {
+        geocodeAddress(FIREHOUSE_ADDRESS).then(coords => {
+            firehouseCoords = coords;
+            if (coords) {
+                console.log('Firehouse geocoded:', coords);
+            }
+        });
+    }
+    updateEinsatzMarkers(event.detail);
+});
+
+document.addEventListener('einsätzeUpdated', (event) => {
+    debouncedUpdateMarkers(event.detail);
+});
+
+// Add reset map button control
+const ResetMapControl = L.Control.extend({
+    options: {
+        position: 'bottomright'
+    },
+
+    onAdd: function (map) {
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+        container.style.backgroundColor = '#3388ff';
+        container.style.border = 'none';
+        container.style.borderRadius = '4px';
+        container.style.overflow = 'hidden';
+
+        const button = L.DomUtil.create('button', '', container);
+        button.innerHTML = '⊡';
+        button.style.width = '32px';
+        button.style.height = '32px';
+        button.style.padding = '0';
+        button.style.backgroundColor = '#3388ff';
+        button.style.border = 'none';
+        button.style.cursor = 'pointer';
+        button.style.fontWeight = 'bold';
+        button.style.fontSize = '16px';
+        button.style.color = 'white';
+        button.title = 'Toggle map zoom';
+
+        button.addEventListener('click', () => {
+            autoZoomEnabled = !autoZoomEnabled;
+            if (!autoZoomEnabled) {
+                map.setView([48.846141, 9.157327], 13);
+                console.log('Auto-zoom disabled, map reset to full view');
+                button.style.opacity = '0.7';
+            } else {
+                console.log('Auto-zoom enabled, re-fitting bounds');
+                button.style.opacity = '1';
+                // Re-fit bounds around existing markers
+                if (einsatzMarkers.length > 0 || firehouseCoords) {
+                    const boundsArray = einsatzMarkers.map(m => m.getLatLng()).map(latlng => [latlng.lat, latlng.lng]);
+                    if (firehouseCoords) {
+                        boundsArray.push([firehouseCoords.lat, firehouseCoords.lon]);
+                    }
+                    if (boundsArray.length > 0) {
+                        const bounds = L.latLngBounds(boundsArray);
+                        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+                    }
+                }
+            }
+        });
+
+        button.addEventListener('mouseover', () => {
+            button.style.backgroundColor = '#2b6ec7';
+        });
+
+        button.addEventListener('mouseout', () => {
+            button.style.backgroundColor = '#3388ff';
+        });
+
+        return container;
+    }
+});
+
+map.addControl(new ResetMapControl());
