@@ -16,7 +16,7 @@ Aktuell nur für den spezifischen Zugang mit einem GoogleSheet, theoretisch wenn
 - Uhr
 - Dienstplan
 - Personal
-- Einsatzübersicht
+- Einsatzübersicht inklusive reaktiver Karte
 - Fahrzeugstatus
 - Wetter
 - Data from a Google Sheet
