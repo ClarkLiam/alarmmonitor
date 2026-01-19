@@ -1,11 +1,11 @@
-var map = L.map('map', {zoomControl: false, dragging: false, attributionControl: false}).setView([48.846141, 9.157327], 13);
+var map = L.map('map', {zoomControl: false, dragging: false, doubleClickZoom: false, attributionControl: false}).setView([48.846141, 9.157327], 13);
 
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png', {
     attribution: ''
 }).addTo(map);
 
 // Firehouse fallback coordinates (Stammheimerstraße 140, Stuttgart)
-const FIREHOUSE_FALLBACK_COORDS = { lat: 48.7519, lon: 9.1819 };
+const FIREHOUSE_FALLBACK_COORDS = Geo.FIREHOUSE_FALLBACK_COORDS;
 
 // Static marker for firehouse (transparent red circle)
 const firehouseCircle = L.circleMarker([FIREHOUSE_FALLBACK_COORDS.lat, FIREHOUSE_FALLBACK_COORDS.lon], {
@@ -118,12 +118,11 @@ const markerClusterGroup = L.markerClusterGroup({
     disableClusteringAtZoom: 0
 });
 map.addLayer(markerClusterGroup);
-const geocodeCache = new Map();
 let lastDisplayedAddresses = [];
 let updateDebounceTimer = null;
-const FIREHOUSE_ADDRESS = 'Stammheimerstraße 140, Stuttgart';
 let firehouseCoords = null;
 let autoZoomEnabled = true;
+let lastBoundsKey = null;
 
 function getTooltipDirection(markerLatlng) {
     // Get available directions to position tooltip (top, left, right)
@@ -148,98 +147,6 @@ function getTooltipOffset(direction) {
 function clearEinsatzMarkers() {
     einsatzMarkers.forEach(marker => markerClusterGroup.removeLayer(marker));
     einsatzMarkers.length = 0;
-}
-
-function normalizeAddress(address) {
-    const base = (address || '').trim();
-    if (!base) return '';
-
-    // If already has Stuttgart/nearby cities or PLZ, keep as-is
-    const lower = base.toLowerCase();
-    const nearbyCities = ['stuttgart', 'kornwestheim', 'korntal', 'korntal-münchingen', 'ludwigsburg', 'fellbach', 'ditzingen'];
-    if (nearbyCities.some(city => lower.includes(city)) || /70\d{3}/.test(base)) return base;
-
-    // If it looks like the firehouse, be explicit
-    if (lower.includes('stammheimerstr') || lower.includes('stammheimerstraße')) {
-        return 'Stammheimer Str. 140, 70439 Stuttgart, Germany';
-    }
-
-    // Otherwise, append region/state + country to reduce geocode drift while allowing nearby councils
-    return `${base}, Baden-Württemberg, Germany`;
-}
-
-function parseStreetAndNumber(address) {
-    // Attempt to split street name and house number (handles e.g., "Musterstraße 12a")
-    const match = (address || '').trim().match(/^(.*?)(\s+)(\d+[a-zA-Z]?)(.*)$/);
-    if (!match) return null;
-    const street = (match[1] + (match[4] || '')).trim();
-    const houseNumber = match[3].trim();
-    if (!street || !houseNumber) return null;
-    return { street, houseNumber };
-}
-
-async function geocodeAddress(address, timeout = 8000) {
-    const normalized = normalizeAddress(address);
-    if (!normalized) return null;
-    if (geocodeCache.has(normalized)) return geocodeCache.get(normalized);
-
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-        // Bound search to Stuttgart + nearby councils (Korntal, Kornwestheim, Ludwigsburg, etc.)
-        // viewbox: minLon,minLat,maxLon,maxLat
-        const viewbox = '8.85,48.70,9.55,49.05';
-        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(normalized)}&countrycodes=de&bounded=1&viewbox=${viewbox}&addressdetails=1`;
-        const response = await fetch(url, {
-            signal: controller.signal,
-            headers: { 'Accept': 'application/json' }
-        });
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error(`Geocoding failed with status ${response.status}`);
-
-        let results = await response.json();
-
-        // If no result or missing house number match, try structured query
-        const parsed = parseStreetAndNumber(normalized);
-        const houseNumber = parsed ? parsed.houseNumber : null;
-
-        const missingHouseMatch = Array.isArray(results) && results.length > 0
-            ? (houseNumber && !(results[0].display_name || '').includes(houseNumber))
-            : true;
-
-        if (!Array.isArray(results) || results.length === 0 || missingHouseMatch) {
-            if (parsed) {
-                const structuredUrl = `https://nominatim.openstreetmap.org/search?format=json&limit=1&street=${encodeURIComponent(parsed.houseNumber + ' ' + parsed.street)}&state=Baden-Württemberg&country=Germany&bounded=1&viewbox=${viewbox}&addressdetails=1`;
-                const structuredResp = await fetch(structuredUrl, {
-                    signal: controller.signal,
-                    headers: { 'Accept': 'application/json' }
-                });
-                if (structuredResp.ok) {
-                    const structuredResults = await structuredResp.json();
-                    if (Array.isArray(structuredResults) && structuredResults.length > 0) {
-                        results = structuredResults;
-                    }
-                }
-            }
-        }
-
-        if (!Array.isArray(results) || results.length === 0) {
-            console.warn('No geocode results for address:', normalized);
-            geocodeCache.set(normalized, null);
-            return null;
-        }
-
-        const { lat, lon, display_name } = results[0];
-        const coords = { lat: parseFloat(lat), lon: parseFloat(lon), displayName: display_name };
-        geocodeCache.set(normalized, coords);
-        return coords;
-    } catch (err) {
-        console.error('Error geocoding address:', normalized, err);
-        geocodeCache.set(normalized, null);
-        return null;
-    }
 }
 
 function pickDisplayedEinsätze(einsaetze) {
@@ -268,9 +175,9 @@ async function updateEinsatzMarkers(einsaetze) {
     lastDisplayedAddresses = currentAddresses;
 
     const results = await Promise.all(displayed.map(async einsatz => {
-        const rawCoords = await geocodeAddress(einsatz.location);
+        const rawCoords = await Geo.geocodeAddress(einsatz.location);
         const locationText = (einsatz.location || '').toLowerCase();
-        const isFirehouseLocation = locationText.includes('stammheimerstr') || locationText.includes('stammheimerstraße') || locationText.includes('durscht 4');
+        const isFirehouseLocation = Geo.isFirehouseLocation(locationText);
 
         // If it's the firehouse, force coordinates to the known firehouse point
         const coords = isFirehouseLocation
@@ -307,11 +214,20 @@ async function updateEinsatzMarkers(einsaetze) {
             boundsArray.push([firehouseForBounds.lat, firehouseForBounds.lon]);
         }
         const bounds = L.latLngBounds(boundsArray);
-        map.fitBounds(bounds, { padding: [25, 25], maxZoom: 20 });
+        const key = JSON.stringify({
+            sw: bounds.getSouthWest(),
+            ne: bounds.getNorthEast()
+        });
+
+        if (key !== lastBoundsKey) {
+            map.fitBounds(bounds, { padding: [38, 38], maxZoom: 19 });
+            lastBoundsKey = key;
+        }
         updateFirehouseCircleVisibility();
     } else {
         // No alarms with coordinates: reset to default view
         map.setView([48.846141, 9.157327], 13);
+        lastBoundsKey = null;
         updateFirehouseCircleVisibility();
     }
 }
@@ -326,7 +242,7 @@ function debouncedUpdateMarkers(einsaetze) {
 document.addEventListener('einsätzeLoaded', (event) => {
     // Geocode firehouse on first load
     if (!firehouseCoords) {
-        geocodeAddress(FIREHOUSE_ADDRESS).then(coords => {
+        Geo.geocodeAddress(Geo.FIREHOUSE_ADDRESS).then(coords => {
             firehouseCoords = coords || FIREHOUSE_FALLBACK_COORDS;
             if (firehouseCoords) {
                 firehouseCircle.setLatLng([firehouseCoords.lat, firehouseCoords.lon]);
@@ -382,7 +298,7 @@ const ResetMapControl = L.Control.extend({
                     if (firehouseForBounds) boundsArray.push([firehouseForBounds.lat, firehouseForBounds.lon]);
                     if (boundsArray.length > 0) {
                         const bounds = L.latLngBounds(boundsArray);
-                        map.fitBounds(bounds, { padding: [25, 25], maxZoom: 16 });
+                        map.fitBounds(bounds, { padding: [38, 38], maxZoom: 19 });
                     }
                 }
             }
