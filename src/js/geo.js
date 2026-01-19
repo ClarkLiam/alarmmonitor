@@ -3,6 +3,37 @@
     const FIREHOUSE_FALLBACK_COORDS = { lat: 48.7519, lon: 9.1819 };
     const nearbyCities = ['stuttgart', 'kornwestheim', 'korntal', 'korntal-münchingen', 'ludwigsburg', 'fellbach', 'ditzingen'];
     const geocodeCache = new Map();
+    const CACHE_KEY = 'geoCacheV1';
+    const CACHE_LIMIT = 300;
+
+    function loadCache() {
+        try {
+            const raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) return;
+            const obj = JSON.parse(raw);
+            Object.entries(obj || {}).forEach(([key, value]) => {
+                if (value && typeof value.lat === 'number' && typeof value.lon === 'number') {
+                    geocodeCache.set(key, value);
+                }
+            });
+        } catch (e) {
+            // ignore corrupt cache
+        }
+    }
+
+    function saveCache() {
+        try {
+            // Keep most recent entries up to CACHE_LIMIT
+            const entries = Array.from(geocodeCache.entries()).map(([k, v]) => ({ k, v })).slice(-CACHE_LIMIT);
+            const obj = {};
+            entries.forEach(({ k, v }) => { obj[k] = v; });
+            localStorage.setItem(CACHE_KEY, JSON.stringify(obj));
+        } catch (e) {
+            // ignore write errors (e.g., storage full)
+        }
+    }
+
+    loadCache();
 
     function normalizeAddress(address) {
         const base = (address || '').trim();
@@ -32,7 +63,7 @@
         return lower.includes('stammheimerstr') || lower.includes('stammheimerstraße') || lower.includes('durscht 4');
     }
 
-    async function geocodeAddress(address, timeout = 8000) {
+    async function geocodeAddress(address, timeout = 6000) {
         const normalized = normalizeAddress(address);
         if (!normalized) return null;
         if (geocodeCache.has(normalized)) return geocodeCache.get(normalized);
@@ -82,11 +113,13 @@
             }
 
             const { lat, lon, display_name } = results[0];
-            const coords = { lat: parseFloat(lat), lon: parseFloat(lon), displayName: display_name };
+            const coords = { lat: parseFloat(lat), lon: parseFloat(lon), displayName: display_name, ts: Date.now() };
             geocodeCache.set(normalized, coords);
+            saveCache();
             return coords;
         } catch (err) {
             geocodeCache.set(normalized, null);
+            saveCache();
             return null;
         }
     }
