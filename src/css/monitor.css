@@ -81,7 +81,7 @@
     flex-direction: row;
 
 }
-#map { 
+#mapbox { 
     grid-area: 3 / 3 / 4 / 4; 
 }
 
@@ -282,3 +282,7 @@ a#fern {
     font-weight: bold;
 }
 
+#map { 
+    height: 100%;
+    width: 100%;
+}
