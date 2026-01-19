@@ -1,6 +1,6 @@
 var map = L.map('map', {zoomControl: false}).setView([48.846141, 9.157327], 13);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var polygon = L.polygon([
@@ -65,3 +65,5 @@ var polygon = L.polygon([
     [48.859910, 9.141101],
     [48.861910, 9.141266]
 ]).addTo(map);
+
+//markers for events
