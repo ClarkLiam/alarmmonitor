@@ -154,17 +154,18 @@ function normalizeAddress(address) {
     const base = (address || '').trim();
     if (!base) return '';
 
-    // If already has Stuttgart or PLZ, keep as-is
+    // If already has Stuttgart/nearby cities or PLZ, keep as-is
     const lower = base.toLowerCase();
-    if (lower.includes('stuttgart') || /70\d{3}/.test(base)) return base;
+    const nearbyCities = ['stuttgart', 'kornwestheim', 'korntal', 'korntal-münchingen', 'ludwigsburg', 'fellbach', 'ditzingen'];
+    if (nearbyCities.some(city => lower.includes(city)) || /70\d{3}/.test(base)) return base;
 
     // If it looks like the firehouse, be explicit
     if (lower.includes('stammheimerstr') || lower.includes('stammheimerstraße')) {
         return 'Stammheimer Str. 140, 70439 Stuttgart, Germany';
     }
 
-    // Otherwise, append city and country to reduce geocode drift
-    return `${base}, Stuttgart, Germany`;
+    // Otherwise, append region/state + country to reduce geocode drift while allowing nearby councils
+    return `${base}, Baden-Württemberg, Germany`;
 }
 
 function parseStreetAndNumber(address) {
@@ -186,9 +187,9 @@ async function geocodeAddress(address, timeout = 8000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-        // Bound search to Stuttgart area to avoid wrong matches
+        // Bound search to Stuttgart + nearby councils (Korntal, Kornwestheim, Ludwigsburg, etc.)
         // viewbox: minLon,minLat,maxLon,maxLat
-        const viewbox = '8.99,48.70,9.40,48.90';
+        const viewbox = '8.85,48.70,9.55,49.05';
         const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(normalized)}&countrycodes=de&bounded=1&viewbox=${viewbox}&addressdetails=1`;
         const response = await fetch(url, {
             signal: controller.signal,
@@ -210,7 +211,7 @@ async function geocodeAddress(address, timeout = 8000) {
 
         if (!Array.isArray(results) || results.length === 0 || missingHouseMatch) {
             if (parsed) {
-                const structuredUrl = `https://nominatim.openstreetmap.org/search?format=json&limit=1&street=${encodeURIComponent(parsed.houseNumber + ' ' + parsed.street)}&city=Stuttgart&country=Germany&bounded=1&viewbox=${viewbox}&addressdetails=1`;
+                const structuredUrl = `https://nominatim.openstreetmap.org/search?format=json&limit=1&street=${encodeURIComponent(parsed.houseNumber + ' ' + parsed.street)}&state=Baden-Württemberg&country=Germany&bounded=1&viewbox=${viewbox}&addressdetails=1`;
                 const structuredResp = await fetch(structuredUrl, {
                     signal: controller.signal,
                     headers: { 'Accept': 'application/json' }
