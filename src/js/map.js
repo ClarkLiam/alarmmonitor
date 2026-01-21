@@ -123,6 +123,8 @@ let updateDebounceTimer = null;
 let firehouseCoords = null;
 let autoZoomEnabled = true;
 let lastBoundsKey = null;
+let routingControl = null;
+const routeLines = [];
 
 function getTooltipDirection(markerLatlng) {
     // Get available directions to position tooltip (top, left, right)
@@ -149,6 +151,53 @@ function clearEinsatzMarkers() {
     einsatzMarkers.length = 0;
 }
 
+function clearRoutes() {
+    routeLines.forEach(route => {
+        if (route && map.hasLayer(route)) {
+            map.removeLayer(route);
+        }
+    });
+    routeLines.length = 0;
+}
+
+function createRoute(fromCoords, toCoords, einsatzType) {
+    // Create a routing control without the UI panel
+    const waypoints = [
+        L.latLng(fromCoords.lat, fromCoords.lon),
+        L.latLng(toCoords.lat, toCoords.lon)
+    ];
+
+    const router = L.Routing.control({
+        waypoints: waypoints,
+        router: L.Routing.osrmv1({
+            serviceUrl: 'https://router.project-osrm.org/route/v1',
+            profile: 'driving'
+        }),
+        lineOptions: {
+            styles: [
+                { color: '#ff0000', opacity: 0.8, weight: 4 }
+            ],
+            addWaypoints: false
+        },
+        show: false,
+        addWaypoints: false,
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        fitSelectedRoutes: false,
+        showAlternatives: false,
+        createMarker: function() { return null; } // Don't create waypoint markers
+    }).addTo(map);
+
+    // Hide the routing instructions panel
+    const container = router.getContainer();
+    if (container) {
+        container.style.display = 'none';
+    }
+
+    routeLines.push(router);
+    return router;
+}
+
 function pickDisplayedEinsätze(einsaetze) {
     const eligible = Array.isArray(einsaetze) ? einsaetze : [];
 
@@ -167,6 +216,7 @@ function pickDisplayedEinsätze(einsaetze) {
 
 async function updateEinsatzMarkers(einsaetze) {
     clearEinsatzMarkers();
+    clearRoutes();
 
     const displayed = pickDisplayedEinsätze(einsaetze);
     const currentAddresses = displayed.map(e => (e.location || '').trim());
@@ -200,6 +250,18 @@ async function updateEinsatzMarkers(einsaetze) {
         marker.bindPopup(`<strong>${einsatz.type || 'Einsatz'}</strong><br>${einsatz.description || ''}<br>${einsatz.location || ''}`, { maxWidth: 200, maxHeight: 150 });
         markerClusterGroup.addLayer(marker);
         einsatzMarkers.push(marker);
+
+        // Create route from firehouse to alarm location (only for active alarms)
+        const isActive = (einsatz.status || '').toLowerCase() !== 'completed';
+        const firehouseForRoute = firehouseCoords || FIREHOUSE_FALLBACK_COORDS;
+        if (isActive && firehouseForRoute) {
+            // Don't create route if alarm is at the firehouse
+            const locationText = (einsatz.location || '').toLowerCase();
+            const isFirehouseLocation = Geo.isFirehouseLocation(locationText);
+            if (!isFirehouseLocation) {
+                createRoute(firehouseForRoute, coords, einsatz.type);
+            }
+        }
     });
 
     // Zoom to fit all displayed markers + firehouse, or reset to default if none
