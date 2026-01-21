@@ -254,7 +254,7 @@ async function updateEinsatzMarkers(einsaetze) {
         // Create route from firehouse to alarm location (only for active alarms)
         const isActive = (einsatz.status || '').toLowerCase() !== 'completed';
         const firehouseForRoute = firehouseCoords || FIREHOUSE_FALLBACK_COORDS;
-        if (isActive && firehouseForRoute && coords) {
+        if (isActive && firehouseForRoute) {
             // Don't create route if alarm is at the firehouse
             const locationText = (einsatz.location || '').toLowerCase();
             const isFirehouseLocation = Geo.isFirehouseLocation(locationText);
