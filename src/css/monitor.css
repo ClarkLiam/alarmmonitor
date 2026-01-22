@@ -306,11 +306,8 @@ a#fern {
 }
 
 @media (max-width: 1200px) {
-    .view {
-        height: 100vh;
-    }
     #logo img {
-        width: 90%;
+        max-width: 90%;
         height: auto;
     }
     #clock {
