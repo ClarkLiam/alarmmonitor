@@ -307,8 +307,7 @@ a#fern {
 
 @media (max-width: 1200px) {
     .view {
-        height: auto;
-        overflow: visible;
+        height: 100vh;
     }
     #logo img {
         width: 90%;
