@@ -304,3 +304,34 @@ a#fern {
     white-space: nowrap;
     line-height: 1;
 }
+
+@media (max-width: 1200px) {
+    .view {
+        height: 100vh;
+    }
+    #logo img {
+        width: 90%;
+        height: auto;
+    }
+    #clock {
+        font-size: 3.5em;
+    }
+    #date {
+        font-size: 1.25em;
+    }
+    .einsatzinfo h1 {
+        font-size: 1.2rem;
+    }
+    .einsatzinfo h3 {
+        font-size: 1rem;
+    }
+    .weather-data h1 {
+        font-size: 3rem;
+    }
+    .weather-data h3 {
+        font-size: 1.2rem;
+    }
+    .personal-box a {
+        font-size: 1.75em;
+    }
+}
